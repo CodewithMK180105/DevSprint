@@ -6,16 +6,16 @@
   "type": "module",
   "scripts": {
     "postinstall": "npx prisma generate",
-    "start": "prisma generate && node server.js",
-    "server": "nodemon server.js"
+    "start": "npx prisma generate && node server.js",
+    "server": "npx prisma generate && nodemon server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@clerk/express": "^2.1.14",
-    "@neondatabase/serverless": "^1.1.0",
-    "@prisma/adapter-neon": "^7.8.0",
+    "@neondatabase/serverless": "^0.8.0",
+    "@prisma/adapter-neon": "^5.10.2",
     "@prisma/client": "^5.10.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
