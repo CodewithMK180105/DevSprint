@@ -44,8 +44,6 @@ function WorkspaceDropdown() {
         }
     }, [currentWorkspace, isLoaded])
 
-    console.log("Current Workspace:", currentWorkspace);
-
     return (
         <div className="relative m-4" ref={dropdownRef}>
             <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
