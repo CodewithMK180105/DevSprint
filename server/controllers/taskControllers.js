@@ -72,7 +72,7 @@ export const createTask=async(req, res)=>{
 export const updateTask=async(req, res)=>{
     try {
         const task= await prisma.task.findUnique({
-            where: {id: req.prisma.id}
+            where: {id: req.params.id}
         });
 
         if(!task){
@@ -98,7 +98,7 @@ export const updateTask=async(req, res)=>{
         });
 
         res.json({
-            task: taskWithAsignee,
+            task: updatedTask,
             message: "Task updated successfully"
         });
     } catch (error) {
@@ -111,10 +111,10 @@ export const updateTask=async(req, res)=>{
 export const deleteTask=async(req, res)=>{
     try {
         const {userId}=await req.auth();
-        const {tasksIds}=req.body;
+        const {taskIds}=req.body;
         const tasks=await prisma.task.findMany({
             where: {
-                id: {in: tasksIds}
+                id: {in: taskIds}
             }
         });
 
@@ -134,7 +134,7 @@ export const deleteTask=async(req, res)=>{
         }
 
         await prisma.task.deleteMany({
-            where: {id: {in: tasksIds}}
+            where: {id: {in: taskIds}}
         });
 
         res.json({

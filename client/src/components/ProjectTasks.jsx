@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteTask, updateTask } from "../features/workspaceSlice";
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from "lucide-react";
+import {useAuth} from "@clerk/clerk-react";
 
 const typeIcons = {
     BUG: { icon: Bug, color: "text-red-600 dark:text-red-400" },
@@ -21,6 +22,7 @@ const priorityTexts = {
 };
 
 const ProjectTasks = ({ tasks }) => {
+    const {getToken}=useAuth();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
@@ -58,8 +60,27 @@ const ProjectTasks = ({ tasks }) => {
         try {
             toast.loading("Updating status...");
 
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const token = await getToken();
+
+            const response = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/tasks/${taskId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                    status: newStatus,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to update task");
+            }
 
             let updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
             updatedTask.status = newStatus;
@@ -78,10 +99,29 @@ const ProjectTasks = ({ tasks }) => {
             const confirm = window.confirm("Are you sure you want to delete the selected tasks?");
             if (!confirm) return;
 
+            const token = await getToken();
+
             toast.loading("Deleting tasks...");
 
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const response = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/tasks/delete`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        taskIds: selectedTasks,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to delete tasks");
+            }
 
             dispatch(deleteTask(selectedTasks));
 
