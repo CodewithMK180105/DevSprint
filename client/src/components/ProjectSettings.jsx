@@ -2,8 +2,15 @@ import { format } from "date-fns";
 import { Plus, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddProjectMember from "./AddProjectMember";
+import { useDispatch } from "react-redux";
+import { useAuth } from "@clerk/clerk-react";
+import { toast } from "react-hot-toast";
+import { fetchWorkspaces } from "../features/workspaceSlice";
 
 export default function ProjectSettings({ project }) {
+
+    const dispatch= useDispatch();
+    const {getToken} = useAuth();
 
     const [formData, setFormData] = useState({
         name: "New Website Launch",
@@ -20,7 +27,41 @@ export default function ProjectSettings({ project }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        toast.loading("Saving...");
+        try {
+            const token = await getToken();
 
+            const response = await fetch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/projects`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(formData),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Something went wrong");
+            }
+
+            setIsDialogOpen(false);
+
+            dispatch(fetchWorkspaces({ getToken }));
+
+            toast.dismissAll();
+            toast.success(data.message);
+        } catch (error) {
+            toast.dismissAll();
+            toast.error(error?.response?.data?.message || error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     useEffect(() => {

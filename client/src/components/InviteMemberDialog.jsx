@@ -24,7 +24,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
             setIsDialogOpen(false);
         } catch (error) {
             console.error("Error sending invitation:", error);
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error?.response?.data?.message || error.message);
         } finally{
             setIsSubmitting(false);
         }
